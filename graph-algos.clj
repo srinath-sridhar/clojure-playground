@@ -132,7 +132,7 @@
           (recur))))))
 
 ;;; Sample graph with more than one path between two vertices
-(def graph2
+(def graph
   {
    :1 [[:2 10] [:3 3] [:4 14]]
    :2 []
@@ -197,6 +197,68 @@
           )))))
 
 
+;;; From now on using proper terminology
+;;; Vertex / Vertices and  Edge / Edges
+(def graph1
+  {
+   :1 [[:2 10] [:3 3] [:4 4]]
+   :2 []
+   :3 [[:2 3] [:4 4] [:5 15] [:6 6]]
+   :4 []
+   :5 []
+   :6 [[:5 2] [:7 7]]
+   :7 []
+   })
+
+;;; Given a graph with non negative edge weights and an initial vertex
+;;; calculates the shortest distance from the initial vertex to every
+;;; other vertex in the graph. At the moment 1000 is assumed to be
+;;; infinity and the graph is assumed to be connected.
+
+(defn dijkstra
+  [graph initial-vertex]
+  (let [visited (atom [])
+        ;; Creates a hashmap with an entry for each vertex of graph
+        ;; and initial distance estimate of 1000
+        distance-estimates (atom (reduce #(conj %1 {%2 1000}) {} (keys graph)))]
+    
+    ;; Set distance estimate of initial vertex to be 0
+    (swap! distance-estimates update-in [initial-vertex] * 0)
+
+    ;; Loop till we are done. 
+    (loop [cur-vertex initial-vertex cur-distance 0]
+      
+      ;; For each vertex that is adjacent to current vertex adjust the
+      ;; distance estimate
+      (doseq [v (cur-vertex graph)]
+        (swap! distance-estimates update-in [(first v)]
+               ;; v is a vector with [:vertex :distance_from_current-node]
+               ;; x is the current distance estimate for vertex
+               (fn [x]
+                 ;; relaxation step of dijkstra's algorithm
+                 (if (< (+ (second v) cur-distance) x)
+                   (+ (second v) cur-distance)
+                   x))))
+      
+      ;; add current vertex to set of visited nodes
+      (swap! visited conj cur-vertex)
+
+      ;; Check if we are done (visited contains all vertices of graph
+      (if (= (into #{} @visited) (into #{} (keys graph)))
+        (println @distance-estimates)
+
+        ;; Get next vertex to process. sort edges by current distance
+        ;; estimate. then filter out vertices which are already
+        ;; processed and then take the first one 
+        (let [next-vertex (->> @distance-estimates
+                               (sort-by #(second %))
+                               (filter #(not (some #{(first %)} @visited)))
+                               (first))]
+          ;; recur with new vertex and new current distance
+          (recur (first next-vertex) (second next-vertex))))     
+      )))
+
+
 ;;; Tree traversal calls
 #_(pre-order tree :1)
 #_(in-order tree :1)
@@ -211,3 +273,7 @@
 #_(dfs graph :1 :1)
 ;;; Returns false
 #_(dfs graph :1 :9)
+
+
+;;; Calls to dijkstra
+#_(dijkstra graph1 :1)
