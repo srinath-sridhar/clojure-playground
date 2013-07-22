@@ -66,7 +66,7 @@
   (println (print-data tree root)))
 
 ;;; Sample Graph represented by and adj-list
-(def graph
+(def graph0
   {
    :1 [[:2 10] [:3 3] [:4 14]]
    :2 []
@@ -132,7 +132,7 @@
           (recur))))))
 
 ;;; Sample graph with more than one path between two vertices
-(def graph
+(def graph1
   {
    :1 [[:2 10] [:3 3] [:4 14]]
    :2 []
@@ -199,7 +199,7 @@
 
 ;;; From now on using proper terminology
 ;;; Vertex / Vertices and  Edge / Edges
-(def graph1
+(def graph2
   {
    :1 [[:2 10] [:3 3] [:4 4]]
    :2 []
@@ -265,15 +265,18 @@
 #_(post-order tree :1)
 
 ;;; Returns true
-#_(bfs graph :1 :1)
+#_(bfs graph0 :1 :1)
 ;;; Returns false
-#_(bfs graph :1 :9)
+#_(bfs graph0 :1 :9)
 
 ;;; Returns true
-#_(dfs graph :1 :1)
+#_(dfs graph0 :1 :1)
 ;;; Returns false
-#_(dfs graph :1 :9)
+#_(dfs graph0 :1 :9)
 
+;;; Calls to MST. Prints out list of edges in MST
+#_(mst graph1)
 
-;;; Calls to dijkstra
-#_(dijkstra graph1 :1)
+;;; Calls to dijkstra. Prints out list of vertices
+;;; with the distance of each vertex from initial vertex
+#_(dijkstra graph2 :1)
